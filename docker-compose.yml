@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   cli:
-    image:    mongo:3.0
+    image:    mongo:4.4
     command:  /bin/bash 
     working_dir: /root    
     volumes:
@@ -11,37 +11,37 @@ services:
       
           
   configserver:
-    image:    mongo:3.0
+    image:    mongo:4.4
     container_name: configserver
-    command:  mongod --configsvr
+    command:  mongod --configsvr --replSet configserverrs --port 27019
     healthcheck:
       test: bash -c "exec 6<> /dev/tcp/localhost/27019"
       interval: 1s
 
 
   queryrouter:
-    image:    mongo:3.0
+    image:    mongo:4.4
     container_name: "queryrouter.docker"
-    command:  mongos --configdb configserver
+    command:  mongos --configdb configserverrs/configserver:27019 --bind_ip_all
     depends_on: 
       configserver:
         condition: service_healthy
 
         
   shard1:
-    image:    mongo:3.0
+    image:    mongo:4.4
     container_name: "shard1.docker"
     command:  mongod --shardsvr --port 27017 --nojournal
 
 
   shard2:
-    image:    mongo:3.0
+    image:    mongo:4.4
     container_name: "shard2.docker"
     command:  mongod --shardsvr --port 27017 --nojournal
 
 
   shard3:
-    image:    mongo:3.0
+    image:    mongo:4.4
     container_name: "shard3.docker"
     command:  mongod --shardsvr --port 27017 --nojournal
 
